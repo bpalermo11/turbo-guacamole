@@ -1,0 +1,14 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - dotnet tool install -g AWS.CodeArtifact.NuGet.CredentialProvider
+      - dotnet codeartifact-creds install
+  pre_build:
+    commands:
+      - dotnet nuget add source -n codeartifact "$(aws codeartifact get-repository-endpoint --domain bpalermo-dotnet --domain-owner $AWS_ACCOUNT_ID --repository SharedUtilitiesNugetRepository --format nuget --output text)v3/index.json"
+  build:
+    commands:
+      - dotnet pack -o .
+      - dotnet nuget push *.nupkg -s codeartifact 
